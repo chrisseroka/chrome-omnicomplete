@@ -1,0 +1,39 @@
+body {
+	width: 800px;
+}
+
+input[type=text]{
+	width: 95%;
+}
+
+#chrome-omnicomplete-listbox {
+	margin: 10px 0px;
+}
+
+#chrome-omnicomplete-listbox .bookmark {
+	padding: 3px;
+}
+
+#chrome-omnicomplete-listbox .bookmark.selected {
+    background-color: purple;
+    color: white;
+}
+
+#chrome-omnicomplete-listbox .b-f {
+    border-radius: 5px;
+    border: 1px solid #73AD21;
+    padding: 3px;
+}
+
+#chrome-omnicomplete-listbox .b-n {
+	line-height: 24px ;
+	margin-bottom: 20px ;
+	margin-left: 0px ;
+	margin-right: 0px ;
+	margin-top: 14px ;
+}
+
+#chrome-omnicomplete-listbox .b-highlight {
+    background-color: yellow;
+    color: black;
+}
