@@ -137,7 +137,17 @@ describe('rendering bookmark', function(){
 
 		var result = renderBookmark(testBookmark);
 
-		expect(result).to.equal('<div class="bookmark"><span class="b-f">Software</span> / <span class="b-n" title="http://test.com/">hello world</span></div>');
+		expect(result).to.equal('<div class="bookmark"><span class="icon"></span><span class="b-f">Software</span><span class="b-n" title="http://test.com/">hello world</span></div>');
+	});
+
+	it('should render bookmark of tab type', function(){
+		var testBookmark = bookmark('Software', 'hello world');
+		testBookmark.url = 'http://test.com/';
+		testBookmark.tabId = 10;
+
+		var result = renderBookmark(testBookmark);
+
+		expect(result).to.equal('<div class="bookmark tab"><span class="icon"></span><span class="b-f">Software</span><span class="b-n" title="http://test.com/">hello world</span></div>');
 	});
 
 	it('should mark selected text', function(){
@@ -162,7 +172,7 @@ describe('merging tabs and bookmarks', function(){
 
 		expect(merged[0]).to.contain.all.keys({path: ['Software', 'hello world'], tabId: 1});
 		expect(merged[1]).to.contain.all.keys({path: ['some title'], tabId: 1});
-		expect(merged[2]).to.contain.all.keys({path: ['some title 2'], tabId: 2});
+		expect(merged[2]).to.contain.all.keys({path: ['some title 2'], tabId: 3});
 		expect(merged[3]).to.contain.all.keys({path: ['Software', 'hello world']});
 		expect(merged[4]).to.contain.all.keys({path: ['Software', 'hello world 2']});
 

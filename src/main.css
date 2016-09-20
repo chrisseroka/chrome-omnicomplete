@@ -1,32 +1,66 @@
 body {
 	width: 800px;
+	font-family: 'Open Sans';
+	font-weight: 400;
+	font-size: 14px;
+	overflow: hidden;
 }
 
 input[type=text]{
-	width: 95%;
+	width: 780px
 }
 
 #chrome-omnicomplete-listbox {
-	margin: 10px 0px;
+	margin: 10px 5px;
+	width: 785px;
+	padding: 10px 10px 10px 0px;
+	margin: 0px;
 }
 
 #chrome-omnicomplete-listbox .bookmark {
 	padding: 3px;
+	line-height: 35px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	border-bottom: 1px solid #D8D8D8;
+}
+
+#chrome-omnicomplete-listbox .bookmark .icon{
+	background-image: url('./images/star.png');
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	top: 8px;
+	bottom: 13px;
+	padding: 5px 10px;
+	margin-left: 15px;
+	float: left;
+	background-repeat: no-repeat;
+	background-position: 0px;
+}
+
+#chrome-omnicomplete-listbox .bookmark.selected .icon{
+	background-image: url('./images/star-white.png');
+}
+
+#chrome-omnicomplete-listbox .bookmark.tab .icon{
+	background-image: url('./images/web-tabs.png');
+}
+
+#chrome-omnicomplete-listbox .bookmark.tab.selected .icon{
+	background-image: url('./images/web-tabs-white.png');
 }
 
 #chrome-omnicomplete-listbox .bookmark.selected {
     background-color: purple;
     color: white;
 }
-
-#chrome-omnicomplete-listbox .b-f {
-    border-radius: 5px;
-    border: 1px solid #73AD21;
-    padding: 3px;
+#chrome-omnicomplete-listbox .selected .b-f::after {
+	background: purple;
 }
 
 #chrome-omnicomplete-listbox .b-n {
-	line-height: 24px ;
 	margin-bottom: 20px ;
 	margin-left: 0px ;
 	margin-right: 0px ;
@@ -36,4 +70,28 @@ input[type=text]{
 #chrome-omnicomplete-listbox .b-highlight {
     background-color: yellow;
     color: black;
+}
+
+#chrome-omnicomplete-listbox .b-f {
+  background: #4285F4;
+  color: #fff;
+  border-radius: 3px 0 0 3px;
+  display: inline-block;
+  height: 15px;
+  line-height: 18px;
+  padding: 3px 20px 7px 16px;
+  position: relative;
+  margin: 7px 10px 7px 0px;
+  text-decoration: none;
+}
+
+#chrome-omnicomplete-listbox .b-f::after {
+  background: #FFF;
+  border-bottom: 12px solid transparent;
+  border-left: 10px solid #4285F4;
+  border-top: 13px solid transparent;
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 function debug() {
-	var enabled = true;
+	var enabled = false;
 
 	var text = arguments[0];
     text = text.replace('{0}', arguments[1])
@@ -85,7 +85,7 @@ function mergeTabsWithBookmarks(tabs, bookmarks){
 		if (foundBookmark){
 			debug('found bookmark in tabs: ' + foundBookmark.path);
 			foundBookmark = JSON.parse(JSON.stringify(foundBookmark));
-			foundBookmark.tabId = tab.id;
+			foundBookmark.tabId = tab.tabId;
 			additionalBookmarks.push(foundBookmark);
 		}
 		else {
@@ -125,7 +125,7 @@ function searchBookmarks(bookmarks, phrase) {
 			else {
 				var isFoundInPart = false;
 				var match = '';
-				while(part.toLowerCase()[partCursor] == phrase.toLowerCase()[phraseCursor]){
+				while(partCursor < part.length && phraseCursor < phrase.length && part.toLowerCase()[partCursor] == phrase.toLowerCase()[phraseCursor]){
 					if (isFoundInPart == false){
 						match = '```';
 						isFoundInPart = true;
@@ -151,23 +151,32 @@ function renderBookmark(bookmark){
 	var templateFolder = '<span class="b-f">{{content}}</span>';
 	var templateHighlightStart = '<span class="b-highlight">';
 	var templateHighlightEnd = '</span>';
-	var templateFolderSeparator = ' / ';
-	var template = '<div class="bookmark">{{folders}} / <span class="b-n" title="{{url}}">{{title}}</span></div>';
+	var templateFolderSeparator = '';
+	var template = '<div class="bookmark{{tabtype}}"><span class="icon"></span>{{folders}}<span class="b-n" title="{{url}}">{{title}}</span></div>';
+	var tabtype = '';
 
 	var path = bookmark.path.map(function(item){
 		return item.replace('```', templateHighlightStart)
 			       .replace('```', templateHighlightEnd);
 	});
 
+	if (bookmark.tabId){
+		tabtype = ' tab';
+	}
+
 	var folders = path.slice(0, path.length - 1).map(function(item){
 		return templateFolder.replace(/{{content}}/gi, item);
 	});
 	var foldersString = folders.join(templateFolderSeparator);
+	if (foldersString){
+		foldersString += templateFolderSeparator;
+	}
 	var title = path[path.length - 1];
 	var result = template
 		.replace(/{{folders}}/gi, foldersString)
 		.replace(/{{url}}/gi, bookmark.url)
-		.replace(/{{title}}/gi, title);
+		.replace(/{{title}}/gi, title)
+		.replace(/{{tabtype}}/gi, tabtype);
 	return result;
 
 }
@@ -176,22 +185,56 @@ function forTesting() {
 	return 'tested';
 }
 
-function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
-	var chromeBookmarks = getChromeBookmarks(function(chromeBookmarks){
-		var bookmarks = getBookmarks(chromeBookmarks);
-		getChromeTabs(function(chromeTabs){
-			var tabs = getActiveTabs(chromeTabs);
-			var tabsAndBookmarks = tabs.concat(bookmarks);
+function timeCache(){
+	var self = this;
 
-			var found = searchBookmarks(tabsAndBookmarks, phrase);
-			var foundAsHtml = found.map(function(item){
-				return renderBookmark(item);
-			});
-			var html = foundAsHtml.join();
-			callback(html, found);
-			listBox.reset(found);
+	self.data = undefined;
+	self.isValid = false;
+	self.get = function(){
+		return self.data;
+	}
+
+	self.set = function(value){
+		self.isValid = true;
+		self.data = value;
+
+		setTimeout(function(){
+			console.log('reseting cache');
+			self.isValid = false;
+			self.data = undefined;
+		}, 2000);
+	}
+}
+var tabsCache = new timeCache();
+
+function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
+	var searchAndRender = function(tabsAndBookmarks){
+		var found = searchBookmarks(tabsAndBookmarks, phrase);
+		var foundAsHtml = found.map(function(item){
+			return renderBookmark(item);
 		});
-	});
+		var html = foundAsHtml.join('');
+		callback(html, found);
+		listBox.reset(found);
+	}
+	
+	if (tabsCache.isValid){
+		console.log('taking value from cache');
+		searchAndRender(tabsCache.get());
+	}
+	else {
+		console.log('recalculate cache');
+		getChromeBookmarks(function(chromeBookmarks){
+			var bookmarks = getBookmarks(chromeBookmarks);
+			getChromeTabs(function(chromeTabs){
+				var tabs = getActiveTabs(chromeTabs);
+				var tabsAndBookmarks = mergeTabsWithBookmarks(tabs, bookmarks);
+				tabsCache.set(tabsAndBookmarks);
+				searchAndRender(tabsCache.get());
+			});
+		});
+	}
+
 }
 
 function BookmarksListBox(){
@@ -227,6 +270,8 @@ function BookmarksListBox(){
 			var bookmark = self.bookmarks[self.currentIndex];
 			var url = bookmark.url;
 			console.log('openning page: ' + url);
+			debug('openning page {0}', JSON.stringify(bookmark));
+
 			if (bookmark.tabId){
 				chrome.tabs.update(bookmark.tabId, {selected: true});
 			}
