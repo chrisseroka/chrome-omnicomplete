@@ -1,7 +1,7 @@
 'use strict';
 
 function debug() {
-	var enabled = false;
+	var enabled = true;
 
 	var text = arguments[0];
     text = text.replace('{0}', arguments[1])
@@ -207,35 +207,6 @@ function timeCache(){
 }
 var tabsCache = new timeCache();
 
-function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
-	var searchAndRender = function(tabsAndBookmarks){
-		var found = searchBookmarks(tabsAndBookmarks, phrase);
-		var foundAsHtml = found.map(function(item){
-			return renderBookmark(item);
-		});
-		var html = foundAsHtml.join('');
-		callback(html, found);
-		listBox.reset(found);
-	}
-	
-	if (tabsCache.isValid){
-		console.log('taking value from cache');
-		searchAndRender(tabsCache.get());
-	}
-	else {
-		console.log('recalculate cache');
-		getChromeBookmarks(function(chromeBookmarks){
-			var bookmarks = getBookmarks(chromeBookmarks);
-			getChromeTabs(function(chromeTabs){
-				var tabs = getActiveTabs(chromeTabs);
-				var tabsAndBookmarks = mergeTabsWithBookmarks(tabs, bookmarks);
-				tabsCache.set(tabsAndBookmarks);
-				searchAndRender(tabsCache.get());
-			});
-		});
-	}
-
-}
 
 function BookmarksListBox(){
 	var self = this;
@@ -305,13 +276,91 @@ function BookmarksListBox(){
 	self.init();
 } 
 
+function showRecentTabs(listBoxControl, listBoxElement){
+	getChromeTabs(function(chromeTabs){
+		var tabs = getActiveTabs(chromeTabs);
+		var backgroundData = chrome.extension.getBackgroundPage().data;
+		var tabsOrder = [];
+
+		for(var i in backgroundData){
+			tabsOrder.push({tabId: i, lastActivated: backgroundData[i].lastActivated});
+		}
+		tabsOrder = tabsOrder.sort(function(a,b){
+			var aTime = a.lastActivated || 0;
+			var bTime = b.lastActivated || 0;
+			return bTime - aTime;
+		});
+		tabsOrder.forEach(function(i){
+			console.log('sorted: ' + JSON.stringify(i));
+		});
+
+		if (tabsOrder.length > 1){
+			tabsOrder = tabsOrder.slice(1);
+		}
+		var result = [];
+		tabsOrder.forEach(function(orderedItem){
+			var found = tabs.find(function(item){
+				return orderedItem.tabId == item.tabId;
+			});
+			if (found){
+				result.push(found);
+				var foundIndex = tabs.indexOf(found);
+				if (foundIndex > -1) {     
+					tabs.splice(foundIndex, 1); 
+				};
+			}
+		});
+		renderBookmarks(result, listBoxControl, listBoxElement);
+	});
+}
+
+function renderBookmarks(bookmarks, listBoxControl, listBoxElement){
+	var bookmarksAsHtml = bookmarks.map(function(item){
+		return renderBookmark(item);
+	});
+	var html = bookmarksAsHtml.join('');
+	listBoxElement.innerHTML = html;
+	listBoxControl.reset(bookmarks);
+}
+
+function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
+	var searchAndRender = function(tabsAndBookmarks){
+		var found = searchBookmarks(tabsAndBookmarks, phrase);
+		var foundAsHtml = found.map(function(item){
+			return renderBookmark(item);
+		});
+		var html = foundAsHtml.join('');
+		callback(html, found);
+		listBox.reset(found);
+	}
+	
+	if (tabsCache.isValid){
+		console.log('taking value from cache');
+		searchAndRender(tabsCache.get());
+	}
+	else {
+		console.log('recalculate cache');
+		getChromeBookmarks(function(chromeBookmarks){
+			var bookmarks = getBookmarks(chromeBookmarks);
+			getChromeTabs(function(chromeTabs){
+				var tabs = getActiveTabs(chromeTabs);
+				var tabsAndBookmarks = mergeTabsWithBookmarks(tabs, bookmarks);
+				tabsCache.set(tabsAndBookmarks);
+				searchAndRender(tabsCache.get());
+			});
+		});
+	}
+}
+
 if (document && document.getElementById('chrome-omnicomplete-input')){
 	var listBox = new BookmarksListBox();
+	var listBoxElement = document.getElementById('chrome-omnicomplete-listbox');
 	document.getElementById('chrome-omnicomplete-input').addEventListener('input', function(){
 		var phrase = document.getElementById('chrome-omnicomplete-input').value;
 		chromeOmnicompleteOnSearching(phrase, listBox, function(html){
-			var listbox = document.getElementById('chrome-omnicomplete-listbox');
-			listbox.innerHTML = html;
+			listBoxElement.innerHTML = html;
 		});
 	});
+	console.log('popup opened');
+	showRecentTabs(listBox, listBoxElement);
 }
