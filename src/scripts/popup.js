@@ -1,7 +1,7 @@
 'use strict';
 
 function debug() {
-	var enabled = true;
+	var enabled = false;
 
 	var text = arguments[0];
     text = text.replace('{0}', arguments[1])
