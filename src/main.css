@@ -1,9 +1,10 @@
 body {
-	width: 800px;
-	font-family: 'Open Sans';
-	font-weight: 400;
-	font-size: 14px;
-	overflow: hidden;
+    width: 800px;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    overflow: hidden;
+    background: #f8f8f8;
 }
 
 input[type=text]{
