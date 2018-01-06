@@ -2,7 +2,7 @@
   "name": "Omnicomplete",
   "version": "0.0.2",
   "manifest_version": 2,
-  "description": "This extension allows you to do smart search of your bookmarks & openned tabs. It also shows the list of recent tabs so that you can go to previous tab easily.",
+  "description": "Smart search for your bookmarks & openned tabs",
   "icons": {
     "24": "images/icon-24.png",
     "128": "images/icon-128.png"
