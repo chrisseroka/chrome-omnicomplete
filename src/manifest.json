@@ -1,10 +1,10 @@
 {
-  "name": "__MSG_appName__",
-  "version": "0.0.1",
+  "name": "Omnicomplete",
+  "version": "0.0.2",
   "manifest_version": 2,
-  "description": "__MSG_appDescription__",
+  "description": "This extension allows you to do smart search of your bookmarks & openned tabs. It also shows the list of recent tabs so that you can go to previous tab easily.",
   "icons": {
-    "16": "images/icon-16.png",
+    "24": "images/icon-24.png",
     "128": "images/icon-128.png"
   },
   "default_locale": "en",
@@ -14,7 +14,7 @@
     ]
   },
   "browser_action": {
-    "default_icon": "images/icon-128.png",
+    "default_icon": "images/icon-24.png",
     "default_popup": "popup.html"
   },
   "permissions": [

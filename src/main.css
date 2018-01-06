@@ -1,5 +1,5 @@
 body {
-    width: 800px;
+    width: 570px;
     font-family: "Segoe UI", Tahoma, sans-serif;
     font-weight: 400;
     font-size: 13px;
@@ -8,12 +8,12 @@ body {
 }
 
 input[type=text]{
-	width: 780px
+	width: 560px
 }
 
 #chrome-omnicomplete-listbox {
 	margin: 10px 5px;
-	width: 785px;
+	width: 570px;
 	padding: 10px 10px 10px 0px;
 	margin: 0px;
 }
