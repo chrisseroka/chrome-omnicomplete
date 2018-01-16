@@ -99,7 +99,90 @@ function searchBookmarks(bookmarks, phrase) {
 	debug('running searchBookmarks with phrase: {0}', phrase);
 	var result = [];
 
+   function partitionizePath(path){
+      var parents = [];
+      var result = [];
+      var pathIndex = 0;
+      path.forEach(function(pathMember){
+         var parts = partitionizePart(pathIndex++, pathMember);
+         parts.forEach(function(part){
+            result.push(part);
+         });
+      });
+      return result;
+   }
+
+   function partitionizePart(pathIndex, pathPart) {
+      return pathPart.split(' ').map(function(x){
+         return { value: x + ' ', index: pathIndex };
+      });
+   }
+
+   function mergeResult(parts){
+      var result = [];
+      var current = parts[0].index;
+      var tmp = '';
+      parts.forEach(function(x){ 
+         if (x.index == current) {
+            tmp += x.value;
+         }
+         else {
+            result.push(tmp.trim());
+            tmp = x.value;
+            current = x.index;
+         }
+      });
+      result.push(tmp.trim());
+      return result;
+   }
+
+   function searchPart(phrase, part){
+      var partCursor = 0;
+      var phraseCursor = 0;
+      var match = '';
+      var isFoundInPart = false;
+      var partValue = part.value;
+      while(partCursor < partValue.length && phraseCursor < phrase.length && partValue.toLowerCase()[partCursor] == phrase.toLowerCase()[phraseCursor]){
+         if (isFoundInPart == false){
+            match = '```';
+            isFoundInPart = true;
+         }
+         match += partValue[partCursor];
+         partCursor++;
+         phraseCursor++;
+      }
+
+      if (partCursor > 0){
+         match += '```';
+      }
+      match = match + partValue.substring(partCursor);
+      part.value = match;
+      return phrase.substring(phraseCursor);
+   }
+
+	
 	bookmarks.forEach(function(bookmark){
+	   var tmpDistinctCheck = '';
+	   //------- Version 1: Checking parts of folders + parts of bookmark name
+      var bookmark2 = JSON.parse(JSON.stringify(bookmark));
+      var partitions = partitionizePath(bookmark2.path);
+      var subpartIndex = 0;
+      var remainingPhrase = phrase;
+      while(subpartIndex < partitions.length && remainingPhrase.length > 0)
+      {
+         var subpart = partitions[subpartIndex];
+         remainingPhrase = searchPart(remainingPhrase, subpart);
+         subpartIndex++;
+      }
+      if (remainingPhrase.length == 0)
+      {
+         bookmark2.path = mergeResult(partitions);
+         result.push(bookmark2);
+         tmpDistinctCheck = bookmark2.path.join('###');
+      }
+
+      //----- Version 2: Checking parts of folders + bookmark name contains
+
 		var phraseCursor = 0;
 		bookmark = JSON.parse(JSON.stringify(bookmark));
 		for(var i=0; i < bookmark.path.length; i++){
@@ -108,19 +191,23 @@ function searchBookmarks(bookmarks, phrase) {
 			partCursor = 0;
 			if (i == bookmark.path.length - 1){
 				var remainingPhrase = phrase.substring(phraseCursor).toLowerCase();
-				var index = part.toLowerCase().indexOf(remainingPhrase);
-				if (remainingPhrase.length && index != -1){
-					var endIndex = index + remainingPhrase.length;
-					var first = part.slice(0, index);
-					var second = part.slice(index, endIndex);
-					var third = part.slice(endIndex, part.length);
-					part = first + '```' + second + '```' + third;
-					bookmark.path[i] = part;
+				if (!remainingPhrase.length && tmpDistinctCheck != bookmark.path.join('###')){
 					result.push(bookmark);
 				}
-				else if (!remainingPhrase.length){
-					result.push(bookmark);
-				}
+            else {
+               var index = part.toLowerCase().indexOf(remainingPhrase);
+               if (remainingPhrase.length && index != -1){
+                  var endIndex = index + remainingPhrase.length;
+                  var first = part.slice(0, index);
+                  var second = part.slice(index, endIndex);
+                  var third = part.slice(endIndex, part.length);
+                  part = first + '```' + second + '```' + third;
+                  bookmark.path[i] = part;
+                  if (tmpDistinctCheck != bookmark.path.join('###')) {
+                     result.push(bookmark);
+                  }
+               }
+            }
 			}
 			else {
 				var isFoundInPart = false;
@@ -155,11 +242,16 @@ function renderBookmark(bookmark){
 	var template = '<div class="bookmark{{tabtype}}"><span class="icon"></span>{{folders}}<span class="b-n" title="{{url}}">{{title}}</span></div>';
 	var tabtype = '';
 
-	var path = bookmark.path.map(function(item){
-		return item.replace('```', templateHighlightStart)
-			       .replace('```', templateHighlightEnd);
-	});
+	function insertHighlight(item) {
+	   var isStart = true;
+	   while(/```/.test(item)){
+         item = item.replace('```', isStart ? templateHighlightStart : templateHighlightEnd );
+         isStart = !isStart;
+	   }
+	   return item;
+   }
 
+	var path = bookmark.path.map(insertHighlight);
 	if (bookmark.tabId){
 		tabtype = ' tab';
 	}
