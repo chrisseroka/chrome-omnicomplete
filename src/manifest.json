@@ -1,6 +1,6 @@
 {
   "name": "Omnicomplete",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 2,
   "description": "Smart search for your bookmarks & openned tabs",
   "icons": {
@@ -33,5 +33,15 @@
       "run_at": "document_end",
       "all_frames": false
     }
-  ]
+  ],
+   "commands": {
+      "_execute_browser_action": {
+         "suggested_key": {
+            "windows": "Ctrl+Comma",
+            "mac": "Command+Comma",
+            "chromeos": "Ctrl+Comma",
+            "linux": "Ctrl+Comma"
+         }
+      }
+   }
 }
