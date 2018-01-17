@@ -22,14 +22,14 @@ function getChromeBookmarks(callback)
 {
 	var result = [];
 	var gtr = chrome.bookmarks.getTree(function(items){
-		console.log('gt inside');
+		debug('gt inside');
 		result = items;
-		console.log('inside l: ' + items.length);
+		debug('inside l: ' + items.length);
 		callback(items);
 	});
-	console.log('gt outside ' +result.length);
+	debug('gt outside ' +result.length);
 	getChromeTabs(function(x){
-		console.log(x);
+		debug(x);
 	});
 	return result;
 }
@@ -291,7 +291,7 @@ function timeCache(){
 		self.data = value;
 
 		setTimeout(function(){
-			console.log('reseting cache');
+			debug('reseting cache');
 			self.isValid = false;
 			self.data = undefined;
 		}, 2000);
@@ -332,7 +332,7 @@ function BookmarksListBox(){
 		else if (keyCode == 13) {//down
 			var bookmark = self.bookmarks[self.currentIndex];
 			var url = bookmark.url;
-			console.log('openning page: ' + url);
+			debug('openning page: ' + url);
 			debug('openning page {0}', JSON.stringify(bookmark));
 
 			if (bookmark.tabId){
@@ -383,7 +383,7 @@ function showRecentTabs(listBoxControl, listBoxElement){
 			return bTime - aTime;
 		});
 		tabsOrder.forEach(function(i){
-			console.log('sorted: ' + JSON.stringify(i));
+			debug('sorted: ' + JSON.stringify(i));
 		});
 
 		if (tabsOrder.length > 1){
@@ -427,11 +427,11 @@ function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
 	}
 	
 	if (tabsCache.isValid){
-		console.log('taking value from cache');
+		debug('taking value from cache');
 		searchAndRender(tabsCache.get());
 	}
 	else {
-		console.log('recalculate cache');
+		debug('recalculate cache');
 		getChromeBookmarks(function(chromeBookmarks){
 			var bookmarks = getBookmarks(chromeBookmarks);
 			getChromeTabs(function(chromeTabs){
@@ -453,6 +453,6 @@ if (document && document.getElementById('chrome-omnicomplete-input')){
 			listBoxElement.innerHTML = html;
 		});
 	});
-	console.log('popup opened');
+	debug('popup opened');
 	showRecentTabs(listBox, listBoxElement);
 }
