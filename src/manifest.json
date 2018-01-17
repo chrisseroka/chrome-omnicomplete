@@ -1,6 +1,6 @@
 {
   "name": "Omnicomplete",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "manifest_version": 2,
   "description": "Smart search for your bookmarks & openned tabs",
   "icons": {
