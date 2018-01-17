@@ -160,16 +160,17 @@ function searchBookmarks(bookmarks, phrase) {
       return phrase.substring(phraseCursor);
    }
 
-	
 	bookmarks.forEach(function(bookmark){
       var tmpDistinctCheck = '';
       function pushResult(result, item){
+         //replace adjacent highlights
+         var path = item.path.join('###').replace(/``````/g, '');
          if (tmpDistinctCheck == '')
          {
-            tmpDistinctCheck = item.path.join('###');
+            tmpDistinctCheck = path;
             result.push(item);
          }
-         else if (tmpDistinctCheck != item.path.join('###'))
+         else if (tmpDistinctCheck != path)
          {
             result.push(item);
          }
