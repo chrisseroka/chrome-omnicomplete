@@ -8,13 +8,14 @@ if (!chrome.bookmarks && !chrome.tabs){
 							{"title":"Stack Overflow","dateAdded":1473739373053,"id":"11","index":0,"parentId":"6","url":"http://stackoverflow.com/"},
 							{"title":"Vim shortcuts","dateAdded":1473739470617,"id":"12","index":1,"parentId":"6","url":"http://stackoverflow.com/questions/1218390/what-is-your-most-productive-shortcut-with-vim"}
 						],"dateAdded":1473739250758,"dateGroupModified":1473739470617,"id":"6","index":0,"parentId":"1"},
-						{"title":"Blogs","children":[
+						{"title":"Internetowe","children":[
 							{"title":"Programming","children":[
 								{"title":"Scott Hanselman","dateAdded":1473739514872,"id":"13","index":0,"parentId":"8","url":"http://www.hanselman.com/blog/"},
 								{"title":"chrisseroka | Web Notes","dateAdded":1473739544745,"id":"14","index":1,"parentId":"8","url":"https://chrisseroka.wordpress.com/"},
 								{"title":"devstyle.pl | Maciej Aniserowicz | blog programisty","dateAdded":1473739587165,"id":"15","index":2,"parentId":"8","url":"http://devstyle.pl/"}
 							],"dateAdded":1473739272300,"dateGroupModified":1473739587165,"id":"8","index":0,"parentId":"7"},
 							{"title":"Parenting","children":[
+								{"title":"Blokowanie Ogromnych Grup","dateAdded":1473739612834,"id":"16","index":0,"parentId":"9","url":"http://www.blogojciec.pl/"},
 								{"title":"Blog Ojciec - Wychowanie dzieci okiem ojca","dateAdded":1473739612834,"id":"16","index":0,"parentId":"9","url":"http://www.blogojciec.pl/"},
 								{"title":"Aktywny Tata","dateAdded":1473739688118,"id":"17","index":1,"parentId":"9","url":"http://aktywnytata.blogspot.com/"}
 							],"dateAdded":1473739284990,"dateGroupModified":1473739688118,"id":"9","index":1,"parentId":"7"}

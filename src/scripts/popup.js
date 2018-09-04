@@ -162,9 +162,10 @@ function searchBookmarks(bookmarks, phrase) {
 
 	bookmarks.forEach(function(bookmark){
       var tmpDistinctCheck = '';
-      function pushResult(result, item){
+      function pushResult(result, item, sortOrder){
          //replace adjacent highlights
          var path = item.path.join('###').replace(/``````/g, '');
+         item.sortPhrase = sortOrder + path;
          if (tmpDistinctCheck == '')
          {
             tmpDistinctCheck = path;
@@ -180,30 +181,38 @@ function searchBookmarks(bookmarks, phrase) {
       var bookmark2 = JSON.parse(JSON.stringify(bookmark));
       var partitions = partitionizePath(bookmark2.path);
       var subpartIndex = 0;
+		var sortOrder = 0;
       var remainingPhrase = phrase;
       while(subpartIndex < partitions.length && remainingPhrase.length > 0)
       {
          var subpart = partitions[subpartIndex];
-         remainingPhrase = searchPart(remainingPhrase, subpart);
+         var newRemainingPhrase = searchPart(remainingPhrase, subpart);
+         if (remainingPhrase != newRemainingPhrase)
+         {
+            sortOrder++;
+         }
+         remainingPhrase = newRemainingPhrase;
          subpartIndex++;
       }
       if (remainingPhrase.length == 0)
       {
          bookmark2.path = mergeResult(partitions);
-         pushResult(result, bookmark2);
+         pushResult(result, bookmark2, sortOrder);
       }
 
       //----- Version 2: Checking parts of folders + bookmark name contains
 		var phraseCursor = 0;
+		sortOrder = 1;
 		bookmark = JSON.parse(JSON.stringify(bookmark));
 		for(var i=0; i < bookmark.path.length; i++){
+		   sortOrder = i;
 			var part = bookmark.path[i];
 			var partCursor = 0;
 			partCursor = 0;
 			if (i == bookmark.path.length - 1){
 				var remainingPhrase = phrase.substring(phraseCursor).toLowerCase();
 				if (!remainingPhrase.length){
-               pushResult(result, bookmark);
+               pushResult(result, bookmark, sortOrder);
 				}
             else {
                var index = part.toLowerCase().indexOf(remainingPhrase);
@@ -214,7 +223,7 @@ function searchBookmarks(bookmarks, phrase) {
                   var third = part.slice(endIndex, part.length);
                   part = first + '```' + second + '```' + third;
                   bookmark.path[i] = part;
-                  pushResult(result, bookmark);
+                  pushResult(result, bookmark, sortOrder);
                }
             }
 			}
@@ -225,6 +234,7 @@ function searchBookmarks(bookmarks, phrase) {
 					if (isFoundInPart == false){
 						match = '```';
 						isFoundInPart = true;
+						sortOrder++;
 					}
 					match += part[partCursor];
 					partCursor++;
@@ -423,6 +433,7 @@ function renderBookmarks(bookmarks, listBoxControl, listBoxElement){
 function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
 	var searchAndRender = function(tabsAndBookmarks){
 		var found = searchBookmarks(tabsAndBookmarks, phrase);
+		found = sort(phrase, found);
 		var foundAsHtml = found.map(function(item){
 			return renderBookmark(item);
 		});
@@ -447,6 +458,13 @@ function chromeOmnicompleteOnSearching(phrase, listBox, callback) {
 			});
 		});
 	}
+}
+
+function sort(phrase, items) {
+   var result = items.sort(function(a, b) {
+      return ('' + a.sortPhrase).localeCompare(b.sortPhrase);
+   });
+   return result;
 }
 
 if (document && document.getElementById('chrome-omnicomplete-input')){
