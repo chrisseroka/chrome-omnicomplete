@@ -217,6 +217,7 @@ function searchBookmarks(bookmarks, phrase) {
             else {
                var index = part.toLowerCase().indexOf(remainingPhrase);
                if (remainingPhrase.length && index != -1){
+                  sortOrder++;
                   var endIndex = index + remainingPhrase.length;
                   var first = part.slice(0, index);
                   var second = part.slice(index, endIndex);
